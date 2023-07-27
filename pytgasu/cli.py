@@ -20,7 +20,6 @@ import click
 from pytgasu.constants import *
 from pytgasu import __version__
 
-
 @click.group()
 @click.version_option()
 def cli():

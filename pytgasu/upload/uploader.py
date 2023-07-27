@@ -16,6 +16,9 @@
 from pathlib import Path
 from hashlib import md5
 from ..constants import *
+import time
+import re
+from pathlib import Path
 
 from telethon.tl.types import InputPeerUser
 
@@ -26,6 +29,13 @@ from telethon.tl.types import InputPeerUser
 
 __all__ = ['upload']
 
+def numerical_sort(item):
+    # Extract the number from the file name
+    number = re.search(r'\d+', Path(item[0]).stem)
+    if number:
+        return int(number.group())
+    else:
+        return 0  # return 0 if no number is found
 
 def upload(tc, sets, subscribe=False):
     """Talk to Stickers bot and create the sets."""
@@ -40,17 +50,21 @@ def upload(tc, sets, subscribe=False):
 
     send_bot_cmd = partial(_send_bot_cmd, tc, tc.get_input_entity('stickers'))
 
-    send_bot_cmd(msg=['/cancel', '/start'])
+    send_bot_cmd(msg=['/cancel'])
 
     for _set in sets:
         set_title, set_short_name, stickers = _set
-
         send_bot_cmd(msg=['/newpack', set_title])
+        time.sleep(2)
+        stickers = sorted(stickers, key=numerical_sort)
         for index, (sticker_image, emojis) in enumerate(stickers):
             send_bot_cmd(file=sticker_image)
-            send_bot_cmd(msg=emojis)
+            time.sleep(2)
+            send_bot_cmd(msg=[emojis[0]])
+            time.sleep(1)
             print(NOTICE_UPLOADED % {'fn': sticker_image.name, 'cur': index + 1, 'total': len(stickers)})
-        send_bot_cmd(msg=['/publish', set_short_name])
+        time.sleep(4)
+        send_bot_cmd(msg=['/publish', '/skip', "wak_" + set_short_name])
         print(NOTICE_SET_AVAILABLE % {'title': set_title, 'short_name': set_short_name})
 
         if subscribe:
@@ -85,10 +99,11 @@ def _send_bot_cmd(tc, bot_entity, msg=None, file=None):
 
     if file:
         res = tc.send_message(entity=bot_entity, file=str(file), force_document=True)
-        wait_for_reply()
+        #wait_for_reply()
     else:
         if isinstance(msg, str):
             msg = list(msg)
         for m in msg:
             res = tc.send_message(entity=bot_entity, message=m)
-            wait_for_reply()
+            time.sleep(2)
+            #wait_for_reply()
