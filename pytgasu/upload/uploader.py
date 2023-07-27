@@ -55,15 +55,15 @@ def upload(tc, sets, subscribe=False):
     for _set in sets:
         set_title, set_short_name, stickers = _set
         send_bot_cmd(msg=['/newpack', set_title])
-        time.sleep(2)
+        time.sleep(1)
         stickers = sorted(stickers, key=numerical_sort)
         for index, (sticker_image, emojis) in enumerate(stickers):
             send_bot_cmd(file=sticker_image)
-            time.sleep(2)
+            time.sleep(0.75)
             send_bot_cmd(msg=[emojis[0]])
-            time.sleep(1)
+            time.sleep(0.25)
             print(NOTICE_UPLOADED % {'fn': sticker_image.name, 'cur': index + 1, 'total': len(stickers)})
-        time.sleep(4)
+        time.sleep(2)
         send_bot_cmd(msg=['/publish', '/skip', "wak_" + set_short_name])
         print(NOTICE_SET_AVAILABLE % {'title': set_title, 'short_name': set_short_name})
 
@@ -105,5 +105,5 @@ def _send_bot_cmd(tc, bot_entity, msg=None, file=None):
             msg = list(msg)
         for m in msg:
             res = tc.send_message(entity=bot_entity, message=m)
-            time.sleep(2)
+            time.sleep(1)
             #wait_for_reply()
